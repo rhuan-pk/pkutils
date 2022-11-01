@@ -25,7 +25,7 @@ func ErrorMessage(message string, anyError any, errorCode...int) {
 
 }
 
-// StringReader creates a NewReader and reads a string from STDIN and returns.
+// StringReader creates a NewReader and reads a string from STDIN and returns (with "new line").
 func StringReader() string {
 
 	read := bufio.NewReader(os.Stdin)
