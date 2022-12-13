@@ -11,14 +11,8 @@ Informe a query completa a ser executada para esta função.
 */
 func (database *Database) List(query string) ([]map[string]string, error) {
 
-	// pega as configuraçẽos do pacote, tenta abrir conexão com o banco, caso falhe retorne o erro.
-	representation, err := database.openConnection()
-	if err != nil {
-		log.Println("estabilish connection failed:", err)
-		return nil, err
-	}
-	defer representation.Close()
-	log.Println("successfully estabilish connection!")
+	// recebe somente o *sql.DB da representação do banco.
+	representation := database.Connection
 
 	// executa a query, caso falhe retorne o erro.
 	table, err := representation.Query(query)

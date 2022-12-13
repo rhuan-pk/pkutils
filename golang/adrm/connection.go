@@ -9,20 +9,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// openConnection abre uma conexão com o banco e valida a mesma, caso tudo sucesse retorna a representação do banco, caso contrário retorne o erro referente.
-func (database *Database) openConnection() (*sql.DB, error) {
-
-	// variáveis que guarda as informações das configurações de credencial.
-	user := database.User
-	password := database.Password
-	host := database.Host
-	port := strconv.Itoa(database.Port)
-	name := database.Name
+// NewDatabase retorna a instância de uma estrutura database.
+func NewDatabase(user, password, host, name string, port int) (*Database, error) {
 
 	// string de conexão.
-	connection := user + ":" + password + "@(" + host + ":" + port + ")/" + name
+	connection := user + ":" + password + "@(" + host + ":" + strconv.Itoa(port) + ")/" + name
 
-	// pega a representação do banco e valida erros de credênciais.
+	// retorna a representação do banco e valida erros de credênciais.
 	representation, err := sql.Open("mysql", connection)
 	if err != nil {
 		log.Println("open connection failed:", err)
@@ -30,7 +23,7 @@ func (database *Database) openConnection() (*sql.DB, error) {
 	}
 	log.Println("successfully connection!")
 
-	// pega a conexão e valida erros da mesma.
+	// valida se a conexão do banco pode ser estabelecida.
 	err = representation.Ping()
 	if err != nil {
 		log.Println("ping connection failed:", err)
@@ -38,7 +31,7 @@ func (database *Database) openConnection() (*sql.DB, error) {
 	}
 	log.Println("successfully ping!")
 
-	// caso tudo sucesse, retorna o banco e nil.
-	return representation, nil
+	// caso tudo sucesse, retorne o ponteiro do banco e nil.
+	return &Database{Connection: representation}, nil
 
 }
