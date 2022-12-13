@@ -18,10 +18,9 @@ func (database *Database) Save(query string) (int, error) {
 	// executa a query, caso falhe retorne o erro se não continue.
 	result, err := representation.Exec(query)
 	if err != nil {
-		log.Println("query exec failed:", err, "query:", query)
+		log.Println("query exec failed!")
 		return -1, err
 	}
-	log.Println("successfully query exec!")
 
 	// pega a quantidade de linhas modificadas ou a última inserida para usar como retorno.
 	var rowsOrID int64

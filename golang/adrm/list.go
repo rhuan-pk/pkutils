@@ -17,11 +17,10 @@ func (database *Database) List(query string) ([]map[string]string, error) {
 	// executa a query, caso falhe retorne o erro.
 	table, err := representation.Query(query)
 	if err != nil {
-		log.Println("query select error:", err, "query:", query)
+		log.Println("error query select!")
 		return nil, err
 	}
 	defer table.Close()
-	log.Println("successfully query select!")
 
 	// cria a variável que guardará a slice de rows/columns/values e que será retornada pelo função.
 	var rowsMapSlice []map[string]string
@@ -29,7 +28,7 @@ func (database *Database) List(query string) ([]map[string]string, error) {
 	// pega o nome das colunas da tabela, caso falhe retorne o erro.
 	columnsNames, err := table.Columns()
 	if err != nil {
-		log.Println("get column names error:", err)
+		log.Println("error get column names!")
 		return nil, err
 	}
 	length := len(columnsNames)
@@ -47,7 +46,7 @@ func (database *Database) List(query string) ([]map[string]string, error) {
 		// pega a linha da iteração atual e popula o valor de cada coluna na slice referente, caso falhe, retorne o erro.
 		err := table.Scan(rowInterfaceSlice...)
 		if err != nil {
-			log.Println("error on read row:", err)
+			log.Println("error on read row!")
 			return nil, err
 		}
 
