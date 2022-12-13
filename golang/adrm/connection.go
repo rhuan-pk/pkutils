@@ -31,7 +31,7 @@ func NewDatabase(user, password, host, name string, port int) (*Database, error)
 		User:       user,
 		Password:   password,
 		Host:       host,
-		Name:       connection,
+		Name:       name,
 		Port:       port,
 		Connection: representation,
 	}, nil
