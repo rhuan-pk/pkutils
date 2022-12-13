@@ -32,6 +32,13 @@ func NewDatabase(user, password, host, name string, port int) (*Database, error)
 	log.Println("successfully ping!")
 
 	// caso tudo sucesse, retorne o ponteiro do banco e nil.
-	return &Database{Connection: representation}, nil
+	return &Database{
+		User:       user,
+		Password:   password,
+		Host:       host,
+		Name:       connection,
+		Port:       port,
+		Connection: representation,
+	}, nil
 
 }
