@@ -10,13 +10,13 @@ Save insere ou atualizad um novo dado no banco retornando a quantidade de linhas
 
 Informe a query completa a ser executada para esta função.
 */
-func (database *Database) Save(query string) (int, error) {
+func (database *Database) Save(query string, args ...any) (int, error) {
 
 	// recebe somente o *sql.DB da representação do banco.
 	representation := database.Connection
 
 	// executa a query, caso falhe retorne o erro se não continue.
-	result, err := representation.Exec(query)
+	result, err := representation.Exec(query, args...)
 	if err != nil {
 		log.Println("query exec failed!")
 		return -1, err
