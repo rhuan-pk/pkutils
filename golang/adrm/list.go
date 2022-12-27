@@ -9,13 +9,20 @@ List retorna a representação de uma tabela do banco sendo que cada índice da 
 
 Informe a query completa a ser executada para esta função.
 */
-func (database *Database) List(query string) ([]map[string]string, error) {
+func (database *Database) List(query string, args ...any) ([]map[string]string, error) {
 
 	// recebe somente o *sql.DB da representação do banco.
 	representation := database.Connection
 
+	// faz preparação da query para dentro de stmt.
+	stmt, err := representation.Prepare(query)
+	if err != nil {
+		log.Println("query statement failed!")
+		return nil, err
+	}
+
 	// executa a query, caso falhe retorne o erro.
-	table, err := representation.Query(query)
+	table, err := stmt.Query(args...)
 	if err != nil {
 		log.Println("error query select!")
 		return nil, err
