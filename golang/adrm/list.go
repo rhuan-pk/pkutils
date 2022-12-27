@@ -32,7 +32,7 @@ func (database *Database) ListRow(query string, args ...any) (map[string]string,
 	// cria o mapa de colunas e valores que será populado com o nome da coluna e seu respectivo valor.
 	var rowsMap map[string]string
 	for columnName, value := range rowInterfaceMap {
-		rowsMap[columnName.(string)] = func() string {
+		rowsMap[(columnName.(string))] = func() string {
 			if stringValue, ok := value.(string); ok {
 				return string(stringValue)
 			}
