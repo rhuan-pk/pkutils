@@ -23,7 +23,7 @@ func (database *Database) ListRow(query string, args ...any) (map[string]string,
 
 	// cria o map de interface que será populado em bytes pela linha retornada do banco na execução da query, caso falhe, retorne o erro.
 	rowInterfaceMap := make(map[any]any)
-	err = stmt.QueryRow(args...).Scan(rowInterfaceMap)
+	err = stmt.QueryRow(args...).Scan(&rowInterfaceMap)
 	if err != nil {
 		log.Println("error on read row!")
 		return nil, err
@@ -32,7 +32,7 @@ func (database *Database) ListRow(query string, args ...any) (map[string]string,
 	// cria o mapa de colunas e valores que será populado com o nome da coluna e seu respectivo valor.
 	var rowsMap map[string]string
 	for columnName, value := range rowInterfaceMap {
-		rowsMap[(columnName.(string))] = func() string {
+		rowsMap[columnName.(string)] = func() string {
 			if stringValue, ok := value.(string); ok {
 				return string(stringValue)
 			}
