@@ -9,7 +9,7 @@ ListRow retorna uma linha do banco de dados que é representada por um mapa no q
 
 Informe a query completa a ser executada para esta função que pode ou não conter parâmetros representados por "?".
 */
-func (database *Database) ListRow(query string, args ...any) (map[string]string, error) {
+func (database *Database) ListRow(query string, tableStruct interface{}, args ...any) (interface{}, error) {
 
 	// recebe somente o *sql.DB da representação do banco.
 	representation := database.Connection
@@ -21,26 +21,13 @@ func (database *Database) ListRow(query string, args ...any) (map[string]string,
 		return nil, err
 	}
 
-	// cria o map de interface que será populado em bytes pela linha retornada do banco na execução da query, caso falhe, retorne o erro.
-	rowInterfaceMap := make(map[any]any)
-	err = stmt.QueryRow(args...).Scan(&rowInterfaceMap)
+	// executa a query e popula a estrutura da tabela retornando a mesma, caso falhe, retorne o erro.
+	err = stmt.QueryRow(args...).Scan(&tableStruct)
 	if err != nil {
 		log.Println("error on read row!")
 		return nil, err
 	}
-
-	// cria o mapa de colunas e valores que será populado com o nome da coluna e seu respectivo valor.
-	var rowsMap map[string]string
-	for columnName, value := range rowInterfaceMap {
-		rowsMap[columnName.(string)] = func() string {
-			if stringValue, ok := value.(string); ok {
-				return string(stringValue)
-			}
-			return "null"
-		}()
-	}
-
-	return rowsMap, nil
+	return tableStruct, nil
 
 }
 
@@ -113,6 +100,7 @@ func (database *Database) List(query string, args ...any) ([]map[string]string, 
 
 	}
 
+	// caso tudo sucesse, retorna a slice de mapas das rows.
 	return rowsMapSlice, nil
 
 }
