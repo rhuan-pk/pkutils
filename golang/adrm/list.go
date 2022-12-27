@@ -5,9 +5,49 @@ import (
 )
 
 /*
-List retorna a representação de uma tabela do banco sendo que cada índice da slice é uma linha que contem dentro um mapa no qual a chave é o nome da coluna e o seu valor é o valor da linha corrente na slice nessa chave do mapa que é coluna, caso algo falhe, retorne o erro.
+ListRow retorna uma linha do banco de dados que é representada por um mapa no qual a chave é o nome da coluna e o seu valor é o valor da linha, caso algo falhe, retorne o erro.
 
-Informe a query completa a ser executada para esta função.
+Informe a query completa a ser executada para esta função que pode ou não conter parâmetros representados por "?".
+*/
+func (database *Database) ListRow(query string, args ...any) (map[string]string, error) {
+
+	// recebe somente o *sql.DB da representação do banco.
+	representation := database.Connection
+
+	// faz preparação da query para dentro de stmt, caso falhe, retorne o erro.
+	stmt, err := representation.Prepare(query)
+	if err != nil {
+		log.Println("query statement failed!")
+		return nil, err
+	}
+
+	// cria o map de interface que será populado em bytes pela linha retornada do banco na execução da query, caso falhe, retorne o erro.
+	rowInterfaceMap := make(map[any]any)
+	err = stmt.QueryRow(args...).Scan(rowInterfaceMap)
+	if err != nil {
+		log.Println("error on read row!")
+		return nil, err
+	}
+
+	// cria o mapa de colunas e valores que será populado com o nome da coluna e seu respectivo valor.
+	var rowsMap map[string]string
+	for columnName, value := range rowInterfaceMap {
+		rowsMap[columnName.(string)] = func() string {
+			if stringValue, ok := value.(string); ok {
+				return string(stringValue)
+			}
+			return "null"
+		}()
+	}
+
+	return rowsMap, nil
+
+}
+
+/*
+List retorna múltiplas linhas do banco de dados que são representadas por uma slice de map sendo que cada índice da slice é uma linha do banco, a chave do mapa é o nome da coluna e seu valor é o valor da linha, caso algo falhe, retorne o erro.
+
+Informe a query completa ser executada para esta função que pode ou não conter parâmetros representados por "?".
 */
 func (database *Database) List(query string, args ...any) ([]map[string]string, error) {
 
@@ -29,7 +69,7 @@ func (database *Database) List(query string, args ...any) ([]map[string]string, 
 	}
 	defer table.Close()
 
-	// cria a variável que guardará a slice de rows/columns/values e que será retornada pelo função.
+	// cria a variável que guardará a slice de mapas que será retornada pelo função.
 	var rowsMapSlice []map[string]string
 
 	// pega o nome das colunas da tabela, caso falhe retorne o erro.
