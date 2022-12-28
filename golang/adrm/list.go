@@ -12,14 +12,14 @@ Informe a query completa a ser executada para esta função que pode ou não con
 func (database *Database) ListRow(query string, args ...any) (map[string]string, error) {
 
 	// row irá retornar somente o mapa da primeira linha da slice de linhas, caso falhe retorne o erro.
-	row, err := database.List(query, args...)
+	sliceRow, err := database.List(query, args...)
 	if err != nil {
 		return nil, err
 	}
-	return map[bool]map[string]string{
-		true:  row[0],
-		false: nil,
-	}[len(row) > 0], nil
+	if len(sliceRow) > 0 {
+		return sliceRow[0], nil
+	}
+	return nil, nil
 
 }
 
