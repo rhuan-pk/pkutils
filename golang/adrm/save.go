@@ -21,6 +21,7 @@ func (database *Database) Save(query string, args ...any) (int, error) {
 		log.Println("query statement failed!")
 		return -1, err
 	}
+	defer stmt.Close()
 
 	// executa a query, caso falhe retorne o erro se não continue.
 	result, err := stmt.Exec(args...)
@@ -29,14 +30,13 @@ func (database *Database) Save(query string, args ...any) (int, error) {
 		return -1, err
 	}
 
-	// pega a quantidade de linhas modificadas ou a última inserida para usar como retorno.
+	// pega a quantidade de linhas modificadas ou a última inserida e retorna.
 	var rowsOrID int64
 	if strings.Split(query, " ")[0] != "INSERT" {
 		rowsOrID, _ = result.RowsAffected()
 	} else {
 		rowsOrID, _ = result.LastInsertId()
 	}
-
 	return int(rowsOrID), nil
 
 }

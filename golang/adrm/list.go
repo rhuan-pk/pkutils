@@ -9,30 +9,19 @@ ListRow retorna uma linha do banco de dados que é representada por um mapa no q
 
 Informe a query completa a ser executada para esta função que pode ou não conter parâmetros representados por "?".
 */
-func (database *Database) ListRow(query string, tableStruct interface{}, args ...any) (interface{}, error) {
+func (database *Database) ListRow(query string, args ...any) (map[string]string, error) {
 
-	// recebe somente o *sql.DB da representação do banco.
-	representation := database.Connection
-
-	// faz preparação da query para dentro de stmt, caso falhe, retorne o erro.
-	stmt, err := representation.Prepare(query)
+	// row irá retornar somente o mapa da primeira linha da slice de linhas, caso falhe retorne o erro.
+	row, err := database.List(query, args...)
 	if err != nil {
-		log.Println("query statement failed!")
 		return nil, err
 	}
-
-	// executa a query e popula a estrutura da tabela retornando a mesma, caso falhe, retorne o erro.
-	err = stmt.QueryRow(args...).Scan(&tableStruct)
-	if err != nil {
-		log.Println("error on read row!")
-		return nil, err
-	}
-	return tableStruct, nil
+	return row[0], nil
 
 }
 
 /*
-List retorna múltiplas linhas do banco de dados que são representadas por uma slice de map sendo que cada índice da slice é uma linha do banco, a chave do mapa é o nome da coluna e seu valor é o valor da linha, caso algo falhe, retorne o erro.
+List retorna múltiplas linhas do banco de dados que são representadas por uma slice de mapa sendo que cada índice da slice é uma linha do banco, a chave do mapa é o nome da coluna e seu valor é o valor da linha, caso algo falhe, retorne o erro.
 
 Informe a query completa ser executada para esta função que pode ou não conter parâmetros representados por "?".
 */
@@ -41,12 +30,13 @@ func (database *Database) List(query string, args ...any) ([]map[string]string, 
 	// recebe somente o *sql.DB da representação do banco.
 	representation := database.Connection
 
-	// faz preparação da query para dentro de stmt.
+	// faz preparação da query para dentro de stmt seta defer para fechar a stmt.
 	stmt, err := representation.Prepare(query)
 	if err != nil {
 		log.Println("query statement failed!")
 		return nil, err
 	}
+	defer stmt.Close()
 
 	// executa a query, caso falhe retorne o erro.
 	table, err := stmt.Query(args...)
@@ -59,7 +49,7 @@ func (database *Database) List(query string, args ...any) ([]map[string]string, 
 	// cria a variável que guardará a slice de mapas que será retornada pelo função.
 	var rowsMapSlice []map[string]string
 
-	// pega o nome das colunas da tabela, caso falhe retorne o erro.
+	// pega o nome das colunas da tabela e pega a quantidade de colunas, caso falhe retorne o erro.
 	columnsNames, err := table.Columns()
 	if err != nil {
 		log.Println("error get column names!")
