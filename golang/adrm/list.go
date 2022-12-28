@@ -16,7 +16,10 @@ func (database *Database) ListRow(query string, args ...any) (map[string]string,
 	if err != nil {
 		return nil, err
 	}
-	return row[0], nil
+	return map[bool]map[string]string{
+		true:  row[0],
+		false: nil,
+	}[len(row) > 0], nil
 
 }
 
