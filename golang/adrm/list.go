@@ -2,6 +2,7 @@ package adrm
 
 import (
 	"log"
+	"strconv"
 )
 
 /*
@@ -81,8 +82,11 @@ func (database *Database) List(query string, args ...any) ([]map[string]string, 
 		rowMap := make(map[string]string, length)
 		for index, columnName := range columnsNames {
 			rowMap[columnName] = func() string {
-				if rowByte, ok := (*rowInterfaceSlice[index].(*any)).([]byte); ok {
+				row := *rowInterfaceSlice[index].(*any)
+				if rowByte, isByte := row.([]byte); isByte {
 					return string(rowByte)
+				} else if rowInt, isInt := row.(int64); isInt {
+					return strconv.Itoa(int(rowInt))
 				}
 				return "null"
 			}()
